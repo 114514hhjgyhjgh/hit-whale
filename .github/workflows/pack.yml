@@ -1,0 +1,39 @@
+name: Build EXE with PyInstaller
+
+on:
+  push:
+    tags:
+      - 'v*'    # 每次打tag，就会自动打包。如果只想主分支，每次push就自动打包将tags改为branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
+
+    - name: Build exe
+      run: pyinstaller -F main.py
+
+    - name: Upload exe to artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: my-program-exe
+        path: dist/main.exe
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: dist/main.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
