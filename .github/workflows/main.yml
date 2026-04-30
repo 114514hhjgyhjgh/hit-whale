@@ -1,21 +1,34 @@
 name: Build EXE
+
 on:
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: windows-latest
+    
     steps:
-    - name: Checkout
+    - name: Checkout代码
       uses: actions/checkout@v4
-    - name: Setup Python
+    
+    - name: 安装Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    - name: Install PyInstaller
-      run: pip install pyinstaller
-    - name: Pack EXE
-      run: pyinstaller --onefile --console main.py
-    - name: Upload
+    
+    - name: 安装依赖
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+    
+    - name: 打包成EXE
+      run: |
+        pyinstaller --onefile --console `
+                    --add-data "mm;mm" `
+                    main.py
+    
+    - name: 上传EXE
       uses: actions/upload-artifact@v4
       with:
         name: myapp-exe
